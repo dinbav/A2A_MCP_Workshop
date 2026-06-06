@@ -1,0 +1,23 @@
+{
+  "ai_engineer": {
+    "title": "AI Engineer",
+    "description": "We are looking for an AI Engineer to design, build, and deploy AI-powered systems including LLM applications, multi-agent systems, and RAG pipelines. You will work closely with product and infrastructure teams to bring intelligent features to production.",
+    "required_skills": ["python", "llm_integration", "prompt_engineering", "a2a", "mcp", "rag", "rest_api", "docker"],
+    "nice_to_have": ["langchain", "fastapi", "kubernetes", "mlflow", "vector_databases", "python_async"],
+    "experience_years": 3
+  },
+  "data_scientist": {
+    "title": "Data Scientist",
+    "description": "We are looking for a Data Scientist to build predictive models, design experiments, and extract insights from data. You will apply ML and statistical methods to solve business problems.",
+    "required_skills": ["python", "machine_learning", "statistics", "pandas", "sql", "data_visualization"],
+    "nice_to_have": ["rag", "prompt_engineering", "deep_learning", "spark", "mlflow"],
+    "experience_years": 2
+  },
+  "backend_engineer": {
+    "title": "Backend Engineer",
+    "description": "We are looking for a Backend Engineer to design and implement scalable server-side systems. You will build REST APIs, manage databases, and ensure high availability of backend services.",
+    "required_skills": ["python", "rest_api", "sql", "docker", "python_async", "git"],
+    "nice_to_have": ["kubernetes", "redis", "message_queues", "mcp", "fastapi"],
+    "experience_years": 3
+  }
+}

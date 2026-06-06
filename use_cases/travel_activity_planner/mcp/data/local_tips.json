@@ -1,0 +1,62 @@
+{
+  "tel aviv": {
+    "transportation": "Use the light rail (Red Line) or Tel-O-Fun shared bikes. Avoid driving Friday afternoons - roads fill up before Shabbat.",
+    "food": "Try hummus at Abu Hassan in Jaffa. Shakshuka at Dr. Shakshuka. Best falafel on King George St. Carmel Market for fresh produce.",
+    "safety": "Very safe city. Watch valuables at the beach. Shabbat starts Friday at sundown - many businesses close until Saturday night.",
+    "recommended_hours": "Beaches are best before 10am or after 5pm in summer. Carmel Market open Sun-Fri mornings. Most museums closed on Saturdays.",
+    "local_highlights": "Jaffa Old City, Rothschild Boulevard, Neve Tzedek neighborhood, HaCarmel Market, Tel Aviv Museum of Art.",
+    "family": "Hayarkon Park has paddle boats, playgrounds, and a mini zoo. Luna Park amusement park nearby. Children's Museum in Holon (15 min away).",
+    "beach": "Gordon Beach and Frishman Beach are central with facilities. Hilton Beach is quieter. Dog Beach at the north end. Water sports rentals available.",
+    "cultural": "Visit Jaffa Old City and flea market. Nachalat Binyamin pedestrian market (Tue & Fri). Bauhaus architecture walking tour on Rothschild Blvd.",
+    "adventure": "Surfing lessons at Gordon Beach. Bike tours along the 14km promenade. Stand-up paddleboarding. Kayaking at the Yarkon River.",
+    "romantic": "Sunset dinner at the Jaffa port restaurants. Rooftop bars on Rothschild Blvd. Neve Tzedek boutique shops and cafes. Sarona Market for food tours."
+  },
+  "paris": {
+    "transportation": "Use the Metro - get a Navigo weekly pass for unlimited travel. Avoid taxis during peak hours. Rent Velib bikes for short trips.",
+    "food": "Breakfast at a local boulangerie (croissant + cafe). Lunch at a brasserie. Avoid tourist traps near Eiffel Tower - walk 2 blocks for better prices.",
+    "safety": "Watch for pickpockets on Metro lines 1 and 4 and near major attractions. Keep bags in front. Emergency: 17 (police), 15 (medical).",
+    "recommended_hours": "Eiffel Tower is magical at night. Louvre is less crowded on Wednesday and Friday evenings. Markets open Tue-Sun mornings.",
+    "local_highlights": "Le Marais for art galleries and cafes. Montmartre for street artists. Canal Saint-Martin for local vibes. Shakespeare and Company bookshop.",
+    "family": "Cite des Sciences et de l'Industrie is excellent for kids. Jardin d'Acclimatation amusement park. Puppet shows at Luxembourg Gardens.",
+    "beach": "Paris Plages (seasonal summer beach on the Seine). Day trip to Deauville (2h by train) for Atlantic beaches.",
+    "cultural": "Louvre, Musee d'Orsay, and Pompidou Centre. Book tickets online in advance. Free entry first Sunday of each month. Opera Garnier tours.",
+    "adventure": "Catacombs tour. Rooftop access at Galeries Lafayette. Guided cycling tours. Seine river kayaking.",
+    "romantic": "Dinner cruise on the Seine. Montmartre sunset at Sacre-Coeur. Wine and cheese picnic at Champ de Mars. Palais Royal gardens."
+  },
+  "barcelona": {
+    "transportation": "T-Casual 10-trip Metro card is best value. Walk the Gothic Quarter - it's compact. Avoid taxis at the port (overpriced).",
+    "food": "Eat lunch 2-4pm (Spanish schedule). Try pan con tomate everywhere. La Boqueria market is touristy - El Ninot market is more local.",
+    "safety": "Pickpockets active on La Rambla and Metro. Keep backpacks in front. Avoid ATMs on La Rambla. Generally very safe city.",
+    "recommended_hours": "Sagrada Familia: book first slot (9am) to avoid crowds. Park Guell: timed entry required. Beaches best early morning or evening.",
+    "local_highlights": "Sagrada Familia, Park Guell, Gothic Quarter, El Born neighborhood, Barceloneta beach, Montjuic castle.",
+    "family": "CosmoCaixa science museum. Barcelona Zoo. Tibidabo amusement park with city views. Parc de la Ciutadella with rowboats.",
+    "beach": "Barceloneta is the most central beach. Mar Bella is quieter and more local. Water sports rentals available at all beaches. Beach volleyball.",
+    "cultural": "Picasso Museum (free Thu evenings). MNAC national art museum. Fundacio Joan Miro. Palau de la Musica concert hall.",
+    "adventure": "Zip line at Montjuic. Rock climbing at Montserrat (1h away). Kayaking and paddleboarding at Barceloneta. Cycling tours through the city.",
+    "romantic": "Tapas bar hopping in El Born. Sunset at Bunkers del Carmel (best city view). Rooftop cocktails at Passeig de Gracia hotels."
+  },
+  "rome": {
+    "transportation": "Walk wherever possible - the centre is compact. Metro has only 2 useful lines. Validate tickets before every journey - inspectors are strict.",
+    "food": "Never eat at restaurants with photos on the menu near attractions. Trastevere and Testaccio neighborhoods for authentic food. Gelato: look for 'artigianale' signs.",
+    "safety": "Watch for pickpockets at the Colosseum, Vatican, and Trevi Fountain. Avoid unlicensed taxi touts. Tap water from nasoni fountains is safe to drink.",
+    "recommended_hours": "Vatican Museums: book online, go early morning. Colosseum: timed entry, book ahead. Trevi Fountain: magical at night. Piazzas lively in evenings.",
+    "local_highlights": "Trastevere neighborhood, Campo de' Fiori market, Testaccio street food, Pigneto for local bars, Borghese Gallery (book ahead).",
+    "family": "Bioparco (Rome zoo) in Villa Borghese. Time Elevator Rome 4D cinema. Explora children's museum. Ostia Antica ruins (less crowded than Forum).",
+    "beach": "Ostia beach (30 min by train from Piramide station). Anzio is cleaner (1h by train). Fregene is popular with Romans.",
+    "cultural": "Vatican Museums + Sistine Chapel (book weeks ahead in summer). Borghese Gallery (max 2h, book mandatory). Capitoline Museums. Forum Romanum.",
+    "adventure": "Catacombs tour. Scooter rental through the city. Kayaking on the Tiber. Day trip to Castelli Romani volcanic lakes.",
+    "romantic": "Sunset from Janiculum Hill. Dinner in Trastevere. Midnight at the Trevi Fountain. Aperitivo hour in Pigneto neighborhood."
+  },
+  "london": {
+    "transportation": "Get an Oyster card or use contactless payment - never buy single paper tickets. Avoid the tube 8-9am and 5-7pm. Night buses run Fri-Sat nights.",
+    "food": "Borough Market for gourmet street food (open daily). Dishoom for Indian breakfast. Avoid eating in Leicester Square. Sunday roast is a must-try tradition.",
+    "safety": "Very safe city. Keep phone in pocket on busy streets. Bag snatching on mopeds in central areas. Emergency number: 999.",
+    "recommended_hours": "British Museum: free, go early. National Gallery: free, less crowded Mon morning. Tower of London: buy tickets online. Markets: Sat-Sun mornings.",
+    "local_highlights": "Shoreditch street art, Columbia Road Flower Market (Sun mornings), Borough Market, Greenwich Park, Notting Hill, Hackney for local vibes.",
+    "family": "Natural History Museum (free, amazing). Science Museum (free). London Eye. Hyde Park with Diana Memorial playground. Kew Gardens.",
+    "beach": "Brighton (1h by train) is the closest beach. Southend-on-Sea (45 min). Hampton Court and Richmond Park for riverside walks.",
+    "cultural": "All major museums are free: British Museum, V&A, Natural History, Science, National Gallery, Tate Modern. Book ahead for temporary exhibitions.",
+    "adventure": "Sky Garden (free, book ahead). Kayaking on the Thames. Cycling along the Thames Path. Climbing at the Castle climbing gym in Hackney.",
+    "romantic": "Sunset walk on Waterloo Bridge. Greenwich Observatory at dusk. Dinner in Soho. Evening Thames cruise. Rooftop at Tate Modern (free)."
+  }
+}

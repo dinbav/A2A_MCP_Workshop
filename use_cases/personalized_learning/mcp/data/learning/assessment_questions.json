@@ -1,0 +1,522 @@
+{
+  "mcp": {
+    "beginner": [
+      {
+        "id": "mcp_b_1",
+        "question": "What does MCP stand for and what is its primary purpose?",
+        "expected_answer": "Model Context Protocol. It is an open standard for connecting AI models to external tools and data sources.",
+        "explanation": "MCP is the 'USB standard for AI' — it lets any model connect to any tool that speaks the protocol.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "mcp_b_2",
+        "question": "What is an MCP server?",
+        "expected_answer": "A lightweight process that exposes tools and resources to an MCP client.",
+        "explanation": "The MCP server is the provider side — it registers tools that the AI can discover and call.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "mcp_b_3",
+        "question": "Name two things an MCP server can expose to an AI model.",
+        "expected_answer": "Tools (callable functions) and Resources (files or data).",
+        "explanation": "The MCP spec defines tools, resources, and prompts as the three primitives a server can expose.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "mcp_b_4",
+        "question": "What is the difference between an MCP host and an MCP client?",
+        "expected_answer": "The host is the application running the AI model. The client is the component inside the host that communicates with MCP servers.",
+        "explanation": "Claude Desktop is an example host. The MCP client lives inside it and manages server connections.",
+        "level": "beginner",
+        "score_weight": 1.0
+      }
+    ],
+    "intermediate": [
+      {
+        "id": "mcp_i_1",
+        "question": "Explain what tag-based tool filtering means in FastMCP.",
+        "expected_answer": "Tools are tagged with labels (e.g. 'weather', 'activities'). Clients can filter the tool list to only receive tools matching specific tags.",
+        "explanation": "Tag filtering happens client-side — the server still registers all tools, but clients receive only the subset matching their requested tags.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "mcp_i_2",
+        "question": "Describe the agentic loop in an LLM that uses MCP tools.",
+        "expected_answer": "The LLM receives the tool list, generates a response with tool_calls, the client executes the tools via call_tool, results are fed back, and the LLM generates the next response — repeating until no more tool calls.",
+        "explanation": "This loop continues until the model produces a final answer without tool calls or a maximum iteration count is reached.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "mcp_i_3",
+        "question": "What is FastMCP and how does it simplify building MCP servers?",
+        "expected_answer": "FastMCP is a Python framework that lets you define MCP tools using decorators (@mcp.tool), handling schema generation, server routing, and transport automatically.",
+        "explanation": "Without FastMCP you would need to manually implement the MCP wire protocol. FastMCP wraps this in a decorator-based API similar to FastAPI.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "mcp_i_4",
+        "question": "What are the two main transport options for MCP and when would you use each?",
+        "expected_answer": "stdio for local processes running on the same machine, and HTTP/SSE for remote servers accessible over the network.",
+        "explanation": "stdio is faster and simpler for local tools. HTTP enables remote deployment and cross-machine access.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      }
+    ],
+    "advanced": [
+      {
+        "id": "mcp_a_1",
+        "question": "What is MCP Sampling and how does it differ from a regular tool call?",
+        "expected_answer": "Sampling is a server-initiated request asking the host to perform an LLM inference. Unlike a tool call (client → server), sampling goes server → host. The host can approve or reject it.",
+        "explanation": "Sampling enables servers to use the LLM for reasoning without embedding their own model, but it introduces a trust boundary the host must enforce.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "mcp_a_2",
+        "question": "How would you design a shared MCP server for a multi-agent A2A system where different agents need different tool subsets?",
+        "expected_answer": "Use tag-based filtering so each agent requests only the tags relevant to its skill. The server registers all tools; agents filter using include_tags when listing tools.",
+        "explanation": "This avoids running multiple MCP servers and simplifies deployment — one server, tag-scoped access per agent.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "mcp_a_3",
+        "question": "What observability would you add to a production MCP server and why?",
+        "expected_answer": "Structured logging per tool call (input, output, latency), distributed tracing (trace IDs propagated from A2A to MCP), error rate metrics, and alerts for tool failures.",
+        "explanation": "Without observability, debugging failures in a multi-agent system where MCP tools are called mid-chain is extremely difficult.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "mcp_a_4",
+        "question": "Explain why MCP servers should be stateless where possible in production.",
+        "expected_answer": "Stateless servers can be horizontally scaled and restarted without losing data. State introduces coupling, makes load balancing harder, and creates failure modes when instances restart.",
+        "explanation": "For state that must persist (e.g. user learning state), use an external store (database) rather than in-memory dicts.",
+        "level": "advanced",
+        "score_weight": 1.0
+      }
+    ]
+  },
+  "a2a": {
+    "beginner": [
+      {
+        "id": "a2a_b_1",
+        "question": "What is the Agent Card in the A2A protocol?",
+        "expected_answer": "A JSON manifest served at /.well-known/agent-card.json that describes an agent's name, skills, capabilities, and URL.",
+        "explanation": "The Agent Card is the discovery mechanism — clients fetch it to learn what an agent can do and how to call it.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "a2a_b_2",
+        "question": "What is a Skill in A2A and what information does it contain?",
+        "expected_answer": "A Skill describes a specific capability of an agent. It contains a name, description, tags, and example prompts.",
+        "explanation": "Skills let orchestrators understand what an agent is good at without calling it — enabling intelligent routing.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "a2a_b_3",
+        "question": "What transport format does A2A use for messages?",
+        "expected_answer": "JSON-RPC over HTTP.",
+        "explanation": "A2A uses JSON-RPC which is a lightweight remote procedure call protocol encoded in JSON.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "a2a_b_4",
+        "question": "What is the difference between an Orchestrator and a Remote Agent in A2A?",
+        "expected_answer": "The Orchestrator receives user requests and routes them to specialist Remote Agents. Remote Agents focus on specific tasks.",
+        "explanation": "The Orchestrator is the brain of the system. Remote Agents are the specialists. The Orchestrator can call multiple Remote Agents for a single user request.",
+        "level": "beginner",
+        "score_weight": 1.0
+      }
+    ],
+    "intermediate": [
+      {
+        "id": "a2a_i_1",
+        "question": "How does context_id enable multi-turn conversations in A2A?",
+        "expected_answer": "context_id is a shared identifier included in every message of a conversation. The agent retrieves the task history for that context_id and includes prior turns when processing the new message.",
+        "explanation": "Without context_id, every message is treated as a fresh task. With it, the agent can see what was said before and respond coherently.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "a2a_i_2",
+        "question": "Describe the keyword routing algorithm used in a typical A2A orchestrator.",
+        "expected_answer": "The orchestrator extracts keywords from each agent's skills (name, description, tags, examples). For each user message, it counts keyword overlaps. Agents with scores within 50% of the top score are selected.",
+        "explanation": "This approach avoids hardcoded routing rules and is robust to paraphrasing — any word in the user query that matches an agent skill triggers selection.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "a2a_i_3",
+        "question": "What is TaskArtifactUpdateEvent and when is it used?",
+        "expected_answer": "It is an A2A event type that carries partial or complete output from an agent as the task progresses. It is used for streaming responses to the client.",
+        "explanation": "Streaming via TaskArtifactUpdateEvent allows the client to display results as they arrive rather than waiting for the full response.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "a2a_i_4",
+        "question": "Why must an orchestrator explicitly forward context_id when calling a remote agent?",
+        "expected_answer": "The A2A SDK does not automatically propagate context_id through agent calls. The orchestrator must extract it from the incoming request and include it in the message sent to the remote agent.",
+        "explanation": "This is a common bug in multi-agent systems — forgetting to forward context_id causes remote agents to treat every call as a new conversation.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      }
+    ],
+    "advanced": [
+      {
+        "id": "a2a_a_1",
+        "question": "What is the full A2A task lifecycle and what triggers each state transition?",
+        "expected_answer": "SUBMITTED (task received) → WORKING (agent processing) → COMPLETED (success), FAILED (error), or INPUT_REQUIRED (agent needs clarification). Transitions are triggered by calls to TaskUpdater methods.",
+        "explanation": "INPUT_REQUIRED is especially important for multi-turn — it signals the client to send another message rather than closing the task.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "a2a_a_2",
+        "question": "How would you implement dynamic agent discovery in an A2A system?",
+        "expected_answer": "Use a service registry (e.g. Redis, Consul, or a simple HTTP endpoint) where agents register their URL and Agent Card on startup. The orchestrator polls or subscribes to the registry instead of reading a static JSON file.",
+        "explanation": "Static registries (agents_registry.json) break when agents move or new ones are added. Dynamic discovery enables zero-downtime agent deployment.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "a2a_a_3",
+        "question": "What are the trade-offs between InMemoryTaskStore and a persistent task store?",
+        "expected_answer": "InMemoryTaskStore is fast and zero-configuration but loses all task history on restart. A persistent store (database) survives restarts but adds latency and infrastructure complexity.",
+        "explanation": "For workshops and prototypes, InMemoryTaskStore is fine. Production systems need persistent stores to support task recovery and audit logs.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "a2a_a_4",
+        "question": "Describe how you would add authentication between A2A agents in production.",
+        "expected_answer": "Each agent issues a JWT or API key. The orchestrator includes it in the Authorization header when calling remote agents. Remote agents validate the token before processing requests.",
+        "explanation": "Without auth, any process that knows an agent's URL can send it tasks — a significant security risk in production.",
+        "level": "advanced",
+        "score_weight": 1.0
+      }
+    ]
+  },
+  "rag": {
+    "beginner": [
+      {
+        "id": "rag_b_1",
+        "question": "What problem does RAG solve that a standard LLM cannot?",
+        "expected_answer": "RAG allows LLMs to answer questions about private, proprietary, or up-to-date information not in their training data.",
+        "explanation": "LLMs have a knowledge cutoff and cannot access private documents. RAG retrieves relevant documents at query time and injects them into the prompt.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "rag_b_2",
+        "question": "What is a vector embedding in the context of RAG?",
+        "expected_answer": "A numerical representation of text (a list of numbers) where similar texts have similar vectors, enabling semantic similarity search.",
+        "explanation": "Embeddings convert text into a mathematical space where proximity means semantic relatedness — 'dog' and 'puppy' are closer than 'dog' and 'car'.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "rag_b_3",
+        "question": "Why do we chunk documents before embedding them in a RAG pipeline?",
+        "expected_answer": "LLMs have context limits, and long documents have too many details. Chunking splits documents into smaller, focused pieces that can be retrieved individually.",
+        "explanation": "Retrieving a whole 50-page PDF for every query is wasteful and imprecise. Chunking lets you retrieve only the 2-3 paragraphs that are actually relevant.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "rag_b_4",
+        "question": "What are the three main steps of a basic RAG pipeline?",
+        "expected_answer": "1. Embed the user query. 2. Retrieve the most similar document chunks from the vector store. 3. Inject retrieved chunks into the LLM prompt and generate an answer.",
+        "explanation": "These three steps — embed, retrieve, generate — are the core of every RAG system regardless of complexity.",
+        "level": "beginner",
+        "score_weight": 1.0
+      }
+    ],
+    "intermediate": [
+      {
+        "id": "rag_i_1",
+        "question": "What is hybrid search in RAG and why is it often better than pure vector search?",
+        "expected_answer": "Hybrid search combines vector (semantic) search with keyword (BM25/TF-IDF) search. It catches exact keyword matches that semantic search might miss and semantic matches that keyword search cannot find.",
+        "explanation": "A query like 'RFC 2616' is better served by keyword search (exact match). A query like 'how does web caching work' is better served by semantic search. Hybrid search gets the best of both.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "rag_i_2",
+        "question": "What is reranking and how does it improve RAG quality?",
+        "expected_answer": "A reranker is a cross-encoder model that takes (query, document) pairs and scores each one for relevance. It reorders the top-k retrieved results to put the most relevant first.",
+        "explanation": "The initial retrieval uses fast approximate search that may not perfectly rank results. Reranking is slower but more accurate — applied to a small candidate set.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "rag_i_3",
+        "question": "Name two RAGAS evaluation metrics and what each measures.",
+        "expected_answer": "Faithfulness: whether the answer is factually grounded in the retrieved context. Answer Relevance: whether the answer actually addresses the user's question.",
+        "explanation": "RAGAS (Retrieval-Augmented Generation Assessment) provides automated metrics that can be computed without human labeling, making continuous evaluation practical.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "rag_i_4",
+        "question": "What is parent-child chunking and what problem does it solve?",
+        "expected_answer": "Small chunks are used for retrieval precision; the parent chunk (the larger surrounding context) is passed to the LLM. This gives precise retrieval but sufficient context for generation.",
+        "explanation": "Very small chunks are easy to match but lack context. Parent-child chunking uses the small chunk as an index but passes the parent to the model.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      }
+    ],
+    "advanced": [
+      {
+        "id": "rag_a_1",
+        "question": "Describe agentic RAG and when you would use it over standard RAG.",
+        "expected_answer": "In agentic RAG the LLM decides whether to retrieve, what query to use, and whether to retrieve again after seeing the first results. Use it when queries require multi-hop reasoning or when relevance is hard to determine in advance.",
+        "explanation": "Standard RAG always retrieves once with the user query. Agentic RAG can retrieve zero or many times, rewrite queries, and synthesize across multiple retrievals.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "rag_a_2",
+        "question": "What is semantic caching in RAG and what are its risks?",
+        "expected_answer": "Semantic caching stores LLM responses for queries and returns cached answers for semantically similar future queries. Risk: stale answers if the knowledge base updates, and incorrect cache hits for subtly different questions.",
+        "explanation": "Semantic caching can reduce cost and latency by 40-80% for common queries, but requires cache invalidation strategies tied to data freshness.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "rag_a_3",
+        "question": "How does knowledge graph RAG differ from standard vector RAG?",
+        "expected_answer": "Knowledge graph RAG stores entities and relationships in a graph database. Retrieval can traverse the graph to find related entities, enabling multi-hop reasoning that flat vector search cannot do.",
+        "explanation": "Example: 'What companies does the CEO of OpenAI have in common with Elon Musk?' requires graph traversal, not just vector similarity.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "rag_a_4",
+        "question": "What is contextual compression in RAG and how does it affect cost?",
+        "expected_answer": "Contextual compression summarizes or extracts only the relevant portion of each retrieved chunk before injecting into the LLM context. It reduces token count and cost but adds a summarization step.",
+        "explanation": "Retrieving 5 chunks of 500 tokens each = 2500 tokens. Compressing to 100 tokens each = 500 tokens — 5x cheaper for the generation step.",
+        "level": "advanced",
+        "score_weight": 1.0
+      }
+    ]
+  },
+  "prompt_engineering": {
+    "beginner": [
+      {
+        "id": "pe_b_1",
+        "question": "What is a system prompt and what is it used for?",
+        "expected_answer": "A system prompt sets the AI's role, persona, tone, and rules before the conversation starts. It defines what the model should and should not do.",
+        "explanation": "The system prompt is the 'job description' given to the AI. It is processed before any user message and shapes all subsequent responses.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pe_b_2",
+        "question": "What is few-shot prompting and when is it useful?",
+        "expected_answer": "Few-shot prompting provides 2-5 input-output examples in the prompt before the actual task. It is useful when the desired output format or reasoning pattern is hard to describe in words.",
+        "explanation": "Showing examples is often more effective than explaining — the model infers the pattern from the examples rather than following abstract instructions.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pe_b_3",
+        "question": "What does chain-of-thought prompting mean?",
+        "expected_answer": "Asking the model to explain its reasoning step by step before giving the final answer. Usually done by adding 'Think step by step' or showing examples with reasoning.",
+        "explanation": "Chain-of-thought dramatically improves accuracy on math, logic, and multi-step reasoning tasks by forcing the model to 'show its work'.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pe_b_4",
+        "question": "What effect does temperature have on LLM output?",
+        "expected_answer": "Temperature controls randomness. Lower values (near 0) produce consistent, deterministic outputs. Higher values (near 1) produce more varied and creative outputs.",
+        "explanation": "For tasks requiring accuracy (code, data extraction) use low temperature. For creative tasks (brainstorming, stories) use higher temperature.",
+        "level": "beginner",
+        "score_weight": 1.0
+      }
+    ],
+    "intermediate": [
+      {
+        "id": "pe_i_1",
+        "question": "What is the ReAct prompting pattern and how does it work?",
+        "expected_answer": "ReAct (Reason + Act) prompts the model to alternate between reasoning (Thought:) and action (Action:) steps. The model reasons about what to do, takes an action (e.g. tool call), observes the result, then reasons again.",
+        "explanation": "ReAct was introduced to improve tool-use accuracy. By separating reasoning from action, the model is less likely to hallucinate tool arguments.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pe_i_2",
+        "question": "Why does structured output prompting require validation and retry logic?",
+        "expected_answer": "LLMs do not guarantee valid JSON even when instructed to produce it. They may output trailing text, markdown code fences, or malformed JSON. Validation catches errors and retrying with the error message often fixes them.",
+        "explanation": "In production, always wrap structured output calls in try/except with a JSON validator. Include the error in the retry prompt: 'Your previous output was invalid JSON: {error}. Fix it.'",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pe_i_3",
+        "question": "What is prompt chaining and what are its main trade-offs?",
+        "expected_answer": "Prompt chaining feeds the output of one prompt as input to the next in a pipeline. Trade-offs: better quality per step vs. higher latency and cost proportional to chain length.",
+        "explanation": "Instead of one massive prompt doing everything, chaining decomposes the task into specialist steps each optimized independently.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pe_i_4",
+        "question": "How do negative examples improve few-shot prompts?",
+        "expected_answer": "Negative examples show the model what NOT to output, making the boundary between correct and incorrect behavior explicit. This is especially useful for tone, format, or scope constraints.",
+        "explanation": "Example: showing 'bad: too long, good: one sentence' is clearer than saying 'be concise' — the model learns by contrast.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      }
+    ],
+    "advanced": [
+      {
+        "id": "pe_a_1",
+        "question": "What is prompt injection and how do you defend against it?",
+        "expected_answer": "Prompt injection is when malicious user input contains instructions that override the system prompt (e.g. 'Ignore previous instructions...'). Defenses include input sanitization, output validation, privilege separation, and treating all user input as untrusted.",
+        "explanation": "No defense is perfect — the model cannot reliably distinguish system instructions from injected ones. Defense-in-depth (multiple layers) is required.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pe_a_2",
+        "question": "What is DSPy and how does it differ from manual prompt engineering?",
+        "expected_answer": "DSPy treats prompts as programs with typed inputs/outputs and optimizes them automatically using a training set. Instead of writing prompt text manually, you define the task signature and DSPy generates and evaluates prompt variations.",
+        "explanation": "DSPy shifts from 'write the perfect prompt' to 'write the task spec and let the optimizer find the prompt'. It requires a labeled evaluation set.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pe_a_3",
+        "question": "How would you manage prompts across a team in a production system?",
+        "expected_answer": "Use a prompt registry: version-controlled prompt storage (e.g. in Git or a database) with semantic versioning, automated evals on every change, A/B testing infrastructure, and rollback capability.",
+        "explanation": "Prompt changes can silently break downstream systems. Treating prompts as code (with tests, versioning, and review) prevents regressions.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pe_a_4",
+        "question": "What is Constitutional AI in prompt engineering?",
+        "expected_answer": "Constitutional AI embeds a set of ethical principles (the 'constitution') directly in the system prompt. The model is instructed to critique and revise its own responses against these principles before output.",
+        "explanation": "Rather than relying on RLHF alone, constitutional AI adds an explicit self-revision step guided by written rules, making the model's values more transparent and auditable.",
+        "level": "advanced",
+        "score_weight": 1.0
+      }
+    ]
+  },
+  "python_async": {
+    "beginner": [
+      {
+        "id": "pa_b_1",
+        "question": "What is the difference between async def and def in Python?",
+        "expected_answer": "async def defines a coroutine function that can be paused at await points. A regular def function runs to completion without pausing.",
+        "explanation": "Calling an async function returns a coroutine object — it does not start running until it is awaited or scheduled on an event loop.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pa_b_2",
+        "question": "What does asyncio.run() do?",
+        "expected_answer": "It creates an event loop, runs the given coroutine until completion, and closes the loop. It is the standard entry point for running async code from synchronous code.",
+        "explanation": "asyncio.run() should only be called once at the top level. Inside async code, use await instead.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pa_b_3",
+        "question": "What type of tasks benefit most from async programming?",
+        "expected_answer": "IO-bound tasks: network requests, file reads, database queries — anything where the code spends time waiting for external responses.",
+        "explanation": "During IO waits, async code yields control to the event loop, which runs other tasks. CPU-bound tasks cannot benefit because they never yield.",
+        "level": "beginner",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pa_b_4",
+        "question": "What does asyncio.gather() do?",
+        "expected_answer": "It runs multiple coroutines concurrently and waits for all of them to complete, returning a list of results in the same order as the inputs.",
+        "explanation": "asyncio.gather(fetch(url1), fetch(url2), fetch(url3)) sends all three requests at the same time instead of one at a time.",
+        "level": "beginner",
+        "score_weight": 1.0
+      }
+    ],
+    "intermediate": [
+      {
+        "id": "pa_i_1",
+        "question": "What is the difference between asyncio.create_task() and asyncio.gather()?",
+        "expected_answer": "create_task() schedules a coroutine to run in the background immediately without waiting for it. gather() schedules multiple coroutines concurrently and waits for all of them.",
+        "explanation": "Use create_task() when you want to fire-and-forget or manage tasks manually. Use gather() when you need all results before proceeding.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pa_i_2",
+        "question": "What is an async context manager and when do you need one?",
+        "expected_answer": "An async context manager implements __aenter__ and __aexit__ coroutines. Use it when setup/teardown involves async operations (e.g. opening a database connection, acquiring a lock).",
+        "explanation": "The async with syntax runs __aenter__ on entry and __aexit__ on exit, both of which can await. This enables proper resource cleanup in async code.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pa_i_3",
+        "question": "How do you add a timeout to an async operation?",
+        "expected_answer": "Use asyncio.wait_for(coroutine, timeout=N) or asyncio.timeout(N) as a context manager. These raise asyncio.TimeoutError if the operation takes longer than N seconds.",
+        "explanation": "Without timeouts, a stuck async operation can hang the entire event loop. Always add timeouts to network calls in production.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pa_i_4",
+        "question": "What is an async generator and how do you consume it?",
+        "expected_answer": "An async generator uses yield inside an async def function. It is consumed with async for, which awaits each yielded value.",
+        "explanation": "Async generators are useful for streaming — yielding results as they are produced rather than collecting them all before returning.",
+        "level": "intermediate",
+        "score_weight": 1.0
+      }
+    ],
+    "advanced": [
+      {
+        "id": "pa_a_1",
+        "question": "When should you use loop.run_in_executor() and what are its limitations?",
+        "expected_answer": "Use run_in_executor() to run blocking (sync) code in a thread pool without blocking the event loop. Limitation: thread pool size is bounded, and ProcessPoolExecutor is needed for true CPU parallelism.",
+        "explanation": "Common use case: calling a synchronous library (e.g. a C extension) from async code. ThreadPoolExecutor works for IO-bound blocking code; ProcessPoolExecutor for CPU-bound.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pa_a_2",
+        "question": "What is uvloop and what are its trade-offs?",
+        "expected_answer": "uvloop is an ultra-fast event loop implementation based on libuv (the same engine as Node.js). It is a drop-in replacement for asyncio's event loop and can be 2-4x faster. Trade-off: limited Windows support and an additional dependency.",
+        "explanation": "For production async Python services on Linux, uvloop is the standard performance upgrade. Install with pip and add uvloop.install() before asyncio.run().",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pa_a_3",
+        "question": "What is structured concurrency and why is it considered safer than raw task management?",
+        "expected_answer": "Structured concurrency ensures that all tasks started within a scope are completed or cancelled before the scope exits. It prevents task leaks and makes error propagation predictable. Libraries: anyio, trio.",
+        "explanation": "With raw create_task(), a task can outlive its creator, leading to hard-to-debug background failures. Structured concurrency enforces task lifetime guarantees.",
+        "level": "advanced",
+        "score_weight": 1.0
+      },
+      {
+        "id": "pa_a_4",
+        "question": "How do you debug a hung async application?",
+        "expected_answer": "Enable asyncio debug mode (PYTHONASYNCIODEBUG=1), use asyncio.get_event_loop().set_debug(True), inspect running tasks with asyncio.all_tasks(), and look for coroutines waiting at the same await for too long.",
+        "explanation": "Async hangs are usually caused by a blocked IO call, a missing await, or a lock that is never released. Debug mode adds warnings for slow callbacks and forgotten awaits.",
+        "level": "advanced",
+        "score_weight": 1.0
+      }
+    ]
+  }
+}

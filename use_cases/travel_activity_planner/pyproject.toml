@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "travel-activity-planner"
+version = "1.0.0"
+description = "A2A + MCP travel planning use case"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp",
+    "python-dotenv",
+    "requests",
+    "geopy",
+    "a2a-sdk==0.3.22",
+    "langchain-openai",
+    "langchain-core",
+    "python-dateutil",
+    "streamlit",
+    "httpx",
+    "uvicorn",
+    "starlette",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["a2a_agents*", "mcp*", "ui*"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

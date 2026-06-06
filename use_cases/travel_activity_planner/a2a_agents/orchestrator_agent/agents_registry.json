@@ -1,0 +1,16 @@
+{
+  "agents": [
+    {
+      "name": "Packing List Agent",
+      "url": "http://localhost:8081"
+    },
+    {
+      "name": "Activity & Weather Agent",
+      "url": "http://localhost:8082"
+    },
+    {
+      "name": "Local Tips Agent",
+      "url": "http://localhost:8083"
+    }
+  ]
+}

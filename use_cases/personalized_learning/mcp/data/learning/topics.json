@@ -1,0 +1,267 @@
+{
+  "mcp": {
+    "beginner": {
+      "summary": "MCP (Model Context Protocol) is an open standard that allows AI models to connect to external tools, data sources, and services in a structured, secure way. Think of it as a USB standard for AI — any tool that speaks MCP can plug into any AI model that supports it.",
+      "key_concepts": [
+        "MCP host: the application running the AI model (e.g. Claude Desktop)",
+        "MCP server: a lightweight process that exposes tools and resources",
+        "MCP client: the component inside the host that talks to servers",
+        "Tools: functions the AI can call (e.g. get_weather)",
+        "Resources: files or data the AI can read",
+        "Transport: how messages travel (stdio, HTTP/SSE)"
+      ],
+      "common_misconceptions": [
+        "MCP is not an AI model itself — it is a communication protocol",
+        "MCP servers do not have to be remote — they can run locally on your machine",
+        "MCP does not replace function calling — it standardizes how tools are discovered and invoked"
+      ],
+      "next_step": "Try running a simple FastMCP server with one tool and connect to it from a Python client."
+    },
+    "intermediate": {
+      "summary": "MCP enables agentic systems to discover and call tools dynamically. At the intermediate level you understand the full request-response lifecycle, tool schemas, tag-based filtering, and how to build multi-tool MCP servers used inside LLM agentic loops.",
+      "key_concepts": [
+        "Tool discovery: list_tools() returns JSON schemas for all registered tools",
+        "Tag filtering: tools can be tagged and clients can filter by tag",
+        "Agentic loop: LLM calls list_tools, receives tool_calls, executes via call_tool, feeds results back",
+        "FastMCP: Python framework that makes building MCP servers easy with decorators",
+        "Transport options: stdio for local processes, HTTP/SSE for remote servers",
+        "Error handling: structured error responses vs exceptions"
+      ],
+      "common_misconceptions": [
+        "LLMs do not automatically know which tools exist — they need list_tools output injected into context",
+        "Tag filtering happens client-side, not server-side — all tools are still registered on the server",
+        "FastMCP tools are sync or async — mixing is fine"
+      ],
+      "next_step": "Build an agentic loop that uses at least 2 MCP tools in sequence and passes results between them."
+    },
+    "advanced": {
+      "summary": "At the advanced level, MCP is used to build production-grade tool ecosystems. You design tool taxonomies, implement resource management, handle auth, optimize latency, and integrate MCP servers into multi-agent architectures like A2A.",
+      "key_concepts": [
+        "Resource management: exposing structured data (files, DB records) as MCP resources",
+        "Prompts: reusable prompt templates registered as MCP prompts",
+        "Sampling: server-initiated LLM calls via MCP sampling messages",
+        "Auth: OAuth2 flows for securing MCP server endpoints",
+        "Multi-agent integration: MCP servers shared across multiple A2A agents",
+        "Observability: logging, tracing, and monitoring MCP tool calls in production"
+      ],
+      "common_misconceptions": [
+        "MCP resources are not the same as RAG — resources are structured references, not vector search results",
+        "Sampling does not mean the server controls the LLM — it sends a request the host can reject",
+        "Production MCP servers should be stateless where possible to support horizontal scaling"
+      ],
+      "next_step": "Design and implement a shared MCP server used by 3 or more A2A agents with different tool subsets per agent."
+    }
+  },
+  "a2a": {
+    "beginner": {
+      "summary": "A2A (Agent-to-Agent) is an open protocol developed by Google that lets AI agents communicate with each other regardless of which framework or model they use. It defines a standard way for one agent to send tasks to another and receive streaming results.",
+      "key_concepts": [
+        "Agent Card: a JSON manifest that describes an agent's capabilities and URL",
+        "Task: a unit of work sent from one agent to another",
+        "Skill: a named capability an agent advertises in its Agent Card",
+        "Orchestrator: an agent that routes tasks to other (remote) agents",
+        "Remote agent: a specialist agent that receives tasks from an orchestrator",
+        "JSON-RPC: the transport format used for A2A messages"
+      ],
+      "common_misconceptions": [
+        "A2A is not a chatbot framework — it is a protocol for agent interoperability",
+        "Agents do not need to use the same LLM or framework to communicate via A2A",
+        "The Agent Card is public and unauthenticated by design — it describes capabilities, not secrets"
+      ],
+      "next_step": "Run a simple A2A agent that returns a greeting, and call it from a Python client using the A2A SDK."
+    },
+    "intermediate": {
+      "summary": "At the intermediate level you build multi-agent systems using A2A. You understand how orchestrators discover and route to remote agents, how streaming works, how context_id enables multi-turn conversations, and how to integrate MCP tools inside A2A agents.",
+      "key_concepts": [
+        "Agent discovery: orchestrators fetch Agent Cards from known URLs",
+        "Keyword routing: matching user input to agent skills via keyword overlap",
+        "Streaming: agents yield partial results via TaskArtifactUpdateEvent",
+        "context_id: shared ID that links turns in a multi-turn conversation",
+        "TaskUpdater: helper class for streaming task state changes",
+        "BaseAgentExecutor: shared executor pattern for all agents in a system"
+      ],
+      "common_misconceptions": [
+        "context_id is not automatically threaded through — you must forward it explicitly",
+        "Streaming does not mean real-time tokens — it means the agent can yield multiple events",
+        "Orchestrators do not merge LLM responses from multiple agents — they forward them separately"
+      ],
+      "next_step": "Build an orchestrator that routes between 3 specialist agents using Agent Card keyword matching and supports multi-turn conversation."
+    },
+    "advanced": {
+      "summary": "Advanced A2A covers production patterns: auth between agents, agent health checks, dynamic agent discovery, hierarchical orchestration, and integrating A2A with CI/CD pipelines. You also understand the A2A specification at the protocol level.",
+      "key_concepts": [
+        "Push notifications: agents sending async task updates via webhooks",
+        "Agent authentication: securing agent-to-agent calls with tokens",
+        "Dynamic discovery: agents registering themselves in a service registry",
+        "Hierarchical orchestration: orchestrators calling other orchestrators",
+        "Task lifecycle: SUBMITTED → WORKING → COMPLETED/FAILED/INPUT_REQUIRED",
+        "A2A SDK internals: LegacyRequestHandler, InMemoryTaskStore, task routing"
+      ],
+      "common_misconceptions": [
+        "Push notifications are optional — most workshop systems use pull-based streaming",
+        "InMemoryTaskStore is not suitable for production — use a persistent store",
+        "The A2A spec is still evolving — always check the latest SDK version"
+      ],
+      "next_step": "Add agent authentication to a multi-agent system and implement a dynamic agent registry."
+    }
+  },
+  "rag": {
+    "beginner": {
+      "summary": "RAG (Retrieval-Augmented Generation) is a technique where an AI model is given relevant documents retrieved from a knowledge base before generating an answer. Instead of relying only on training data, the model can answer questions about private or up-to-date information.",
+      "key_concepts": [
+        "Vector embedding: turning text into numerical vectors that capture meaning",
+        "Vector store: a database that stores and searches embeddings (e.g. FAISS, Pinecone)",
+        "Retrieval: finding the most relevant chunks of text for a given query",
+        "Augmentation: injecting retrieved text into the LLM prompt as context",
+        "Chunking: splitting long documents into smaller pieces before embedding",
+        "Similarity search: finding vectors closest to the query vector (cosine similarity)"
+      ],
+      "common_misconceptions": [
+        "RAG does not make the LLM remember documents permanently — it retrieves fresh each time",
+        "Larger chunks are not always better — too large reduces precision, too small loses context",
+        "RAG does not eliminate hallucinations — the LLM can still ignore or misinterpret retrieved context"
+      ],
+      "next_step": "Build a simple RAG pipeline: embed 5 documents, store in a vector DB, retrieve top-2 for a query, and feed to an LLM."
+    },
+    "intermediate": {
+      "summary": "Intermediate RAG covers advanced retrieval strategies, reranking, hybrid search, and evaluation. You understand how to build production RAG pipelines with chunking strategies, metadata filtering, and quality metrics.",
+      "key_concepts": [
+        "Hybrid search: combining vector search with keyword (BM25) search",
+        "Reranking: using a cross-encoder to reorder retrieved results by relevance",
+        "Metadata filtering: pre-filtering documents by date, category, or source",
+        "Parent-child chunking: small chunks for retrieval, large chunks for context",
+        "RAG evaluation: RAGAS metrics (faithfulness, answer relevance, context precision)",
+        "Query expansion: rewriting the user query to improve retrieval recall"
+      ],
+      "common_misconceptions": [
+        "Reranking is not always needed — it adds latency and is most useful for large retrieval sets",
+        "Hybrid search requires both a vector store and a keyword index — more infrastructure",
+        "High retrieval recall does not guarantee high generation quality"
+      ],
+      "next_step": "Add a reranker to your RAG pipeline and measure the improvement using RAGAS faithfulness score."
+    },
+    "advanced": {
+      "summary": "Advanced RAG covers agentic RAG (the LLM decides when and how to retrieve), knowledge graph RAG, multi-hop reasoning, and production optimization including caching, streaming, and cost control.",
+      "key_concepts": [
+        "Agentic RAG: LLM decides whether to retrieve, what to retrieve, and when to stop",
+        "Knowledge graph RAG: combining vector search with graph traversal for structured reasoning",
+        "Multi-hop retrieval: chaining multiple retrieval steps to answer complex questions",
+        "Contextual compression: summarizing retrieved chunks before injecting into context",
+        "Semantic caching: caching LLM responses for similar queries to reduce cost",
+        "Streaming RAG: streaming retrieved context and LLM output simultaneously"
+      ],
+      "common_misconceptions": [
+        "Agentic RAG is more powerful but also more expensive and slower — use only when needed",
+        "Knowledge graphs require significant upfront investment — not always justified",
+        "Semantic caching invalidation is non-trivial — stale cache can cause incorrect answers"
+      ],
+      "next_step": "Implement agentic RAG where the agent can decide to retrieve 0, 1, or 2 times based on confidence."
+    }
+  },
+  "prompt_engineering": {
+    "beginner": {
+      "summary": "Prompt engineering is the practice of designing inputs to AI models to get reliable, high-quality outputs. A well-crafted prompt gives the model the right role, context, instructions, and format to follow.",
+      "key_concepts": [
+        "System prompt: sets the AI's role, tone, and constraints",
+        "Zero-shot: asking the model to complete a task without examples",
+        "Few-shot: providing 2-5 examples of input-output pairs before the task",
+        "Chain-of-thought: asking the model to 'think step by step' before answering",
+        "Instruction clarity: being specific about format, length, and what NOT to do",
+        "Temperature: controls randomness (0 = deterministic, 1 = creative)"
+      ],
+      "common_misconceptions": [
+        "Longer prompts are not always better — unnecessary context can confuse the model",
+        "The model does not 'remember' previous conversations unless history is included",
+        "Chain-of-thought helps reasoning but increases token cost"
+      ],
+      "next_step": "Take one task you currently do with a simple prompt and rewrite it with a system prompt, 3 few-shot examples, and output format instructions."
+    },
+    "intermediate": {
+      "summary": "Intermediate prompt engineering covers structured output, tool-use prompting, prompt chaining, and meta-prompting. You understand how to prompt for JSON output, build multi-step pipelines, and evaluate prompt quality systematically.",
+      "key_concepts": [
+        "Structured output: prompting for valid JSON or XML with schema enforcement",
+        "Tool-use prompting: instructing the model when and how to call tools",
+        "Prompt chaining: feeding output of one prompt as input to the next",
+        "ReAct pattern: Reason + Act — model alternates between thinking and tool calls",
+        "Prompt versioning: tracking prompt changes like code (with evals)",
+        "Negative examples: showing the model what NOT to do in few-shot"
+      ],
+      "common_misconceptions": [
+        "Structured output does not guarantee valid JSON — always validate and retry",
+        "ReAct is not a framework — it is a prompting pattern any LLM can follow",
+        "Prompt chaining increases latency proportionally to the number of steps"
+      ],
+      "next_step": "Build a 3-step prompt chain that extracts entities, classifies intent, and generates a structured response — all via prompting only."
+    },
+    "advanced": {
+      "summary": "Advanced prompt engineering covers adversarial robustness, automatic prompt optimization, constitutional AI principles, and large-scale prompt management in production systems.",
+      "key_concepts": [
+        "Prompt injection: attacks where user input overrides system instructions",
+        "Adversarial robustness: designing prompts that resist manipulation",
+        "APE (Automatic Prompt Engineer): using an LLM to generate and evaluate prompts",
+        "DSPy: a framework for programmatic prompt optimization with gradient-like feedback",
+        "Constitutional AI: embedding ethical rules directly in system prompts",
+        "Prompt registry: centralized versioned storage for production prompts"
+      ],
+      "common_misconceptions": [
+        "No prompt is fully injection-proof — defense-in-depth is required",
+        "APE/DSPy require a labeled evaluation set — they are not zero-setup",
+        "Constitutional AI does not replace safety training — it is an additional layer"
+      ],
+      "next_step": "Set up a prompt registry with version tracking and automated evals that run on every prompt change."
+    }
+  },
+  "python_async": {
+    "beginner": {
+      "summary": "Python async programming lets your code do multiple things at once without using multiple threads. Instead of blocking and waiting (e.g. for a web request), async code pauses at `await` points and lets other tasks run in the meantime.",
+      "key_concepts": [
+        "async def: defines a coroutine function",
+        "await: pauses execution until the awaited coroutine completes",
+        "asyncio.run(): entry point that runs an async function from synchronous code",
+        "Event loop: the scheduler that runs coroutines and IO callbacks",
+        "asyncio.gather(): run multiple coroutines concurrently",
+        "Coroutine: a function that can be paused and resumed"
+      ],
+      "common_misconceptions": [
+        "async does not make your code faster by default — it is useful only for IO-bound tasks",
+        "You cannot await in regular (non-async) functions",
+        "asyncio is single-threaded — it does not use multiple CPU cores"
+      ],
+      "next_step": "Write an async function that fetches 5 URLs concurrently using asyncio.gather() and measures the time savings vs sequential."
+    },
+    "intermediate": {
+      "summary": "Intermediate async covers tasks, queues, timeouts, async context managers, and async generators. You understand how to build concurrent pipelines, handle cancellation, and integrate async with frameworks like FastAPI or Starlette.",
+      "key_concepts": [
+        "asyncio.create_task(): schedule a coroutine to run concurrently",
+        "asyncio.Queue: async-safe producer-consumer queue",
+        "asyncio.timeout() / asyncio.wait_for(): add timeouts to coroutines",
+        "Async context managers: __aenter__ / __aexit__ for resource management",
+        "Async generators: yield values from async functions (async for ...)",
+        "Task cancellation: task.cancel() + asyncio.CancelledError handling"
+      ],
+      "common_misconceptions": [
+        "create_task() and gather() both run concurrently but gather() waits for all — create_task() fires and forgets",
+        "Async context managers are not automatically thread-safe",
+        "CancelledError should usually be re-raised, not silently caught"
+      ],
+      "next_step": "Implement an async pipeline with a producer that generates items, a queue, and 3 concurrent consumers that process items."
+    },
+    "advanced": {
+      "summary": "Advanced async Python covers event loop internals, custom executors for CPU-bound work, async debugging, profiling, and patterns for building high-throughput async services.",
+      "key_concepts": [
+        "loop.run_in_executor(): offload CPU-bound work to a thread/process pool",
+        "uvloop: faster event loop implementation (drop-in replacement for asyncio)",
+        "Structured concurrency: anyio / trio patterns for safer task management",
+        "AsyncExitStack: managing multiple async context managers dynamically",
+        "Debugging async code: asyncio debug mode, tracemalloc, async stack traces",
+        "Backpressure: controlling producer speed to avoid queue overflow"
+      ],
+      "common_misconceptions": [
+        "uvloop is not compatible with all platforms (Windows support is limited)",
+        "run_in_executor does not magically make CPU-bound code faster without a ProcessPoolExecutor",
+        "Structured concurrency is a design pattern, not a built-in Python feature"
+      ],
+      "next_step": "Profile an async service under load using asyncio debug mode and identify the top 3 bottlenecks."
+    }
+  }
+}

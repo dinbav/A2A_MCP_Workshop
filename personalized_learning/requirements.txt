@@ -1,0 +1,23 @@
+# Personalized Learning use case dependencies
+# Recommended install: pip install -e .
+# Or install from this file: pip install -r requirements.txt
+
+# A2A + MCP core
+a2a-sdk==0.3.22
+fastmcp
+
+# Web / async server stack
+uvicorn
+starlette
+httpx
+
+# UI
+streamlit
+
+# Utilities
+requests
+python-dotenv
+
+# Dev / testing
+pytest>=8
+pytest-asyncio>=0.23

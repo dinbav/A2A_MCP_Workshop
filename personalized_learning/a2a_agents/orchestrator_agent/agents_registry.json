@@ -1,7 +1,0 @@
-{
-  "agents": [
-    { "name": "Topic Explainer Agent", "url": "http://localhost:8091" },
-    { "name": "Assessment Agent",      "url": "http://localhost:8092" },
-    { "name": "Study Plan Agent",      "url": "http://localhost:8093" }
-  ]
-}

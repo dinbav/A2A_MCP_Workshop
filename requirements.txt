@@ -1,0 +1,32 @@
+# Root requirements - includes all dependencies from both use cases
+# Install a specific use case instead:
+#   pip install -e use_cases/personalized_learning
+#   pip install -e use_cases/travel_activity_planner
+
+# A2A + MCP core
+a2a-sdk==0.3.22
+fastmcp
+
+# Web / async server stack
+uvicorn
+starlette
+httpx
+
+# LLM / AI integrations (travel_activity_planner)
+langchain-openai
+langchain-core
+
+# Geo / date utilities (travel_activity_planner)
+geopy
+python-dateutil
+requests
+
+# UI
+streamlit
+
+# Environment & config
+python-dotenv
+
+# Dev / testing
+pytest>=8
+pytest-asyncio>=0.23

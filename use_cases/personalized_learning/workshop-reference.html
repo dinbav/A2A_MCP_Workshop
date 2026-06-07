@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A2A + MCP — Personalized Learning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --cream:        #F5F0E8;
+      --cream-dark:   #EAE3D8;
+      --cream-mid:    #F0EBE1;
+      --warm:         #C4956A;
+      --warm-light:   #E8D4BC;
+      --blue:         #6B96BC;
+      --blue-light:   #A8C0D8;
+      --blue-pale:    #D8E8F2;
+      --navy:         #2B4664;
+      --navy-mid:     rgba(43,70,100,0.7);
+      --navy-soft:    rgba(43,70,100,0.5);
+      --navy-faint:   rgba(43,70,100,0.35);
+      --border:       rgba(43,70,100,0.12);
+      --border-strong:rgba(43,70,100,0.28);
+      --card:         #ffffff;
+      --card-hover:   #f8f6f2;
+      --mono:         'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--cream);
+      color: var(--navy);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--blue-light); border-radius: 3px; }
+
+    p code, li code, td code {
+      font-family: var(--mono);
+      font-size: 0.87em; background: var(--blue-pale);
+      color: var(--navy); border-radius: 3px; padding: 1px 5px;
+    }
+
+    /* ══ TOPBAR ══ */
+    #topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 56px; background: rgba(245,240,232,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 24px; gap: 14px;
+    }
+    .tb-logo {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--blue);
+      background: var(--blue-pale); border: 1px solid var(--blue-light);
+      padding: 4px 10px; border-radius: 6px; white-space: nowrap;
+    }
+    .tb-title { font-size: 13.5px; font-weight: 600; color: var(--navy-mid); flex: 1; }
+    .tb-badge {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 20px; letter-spacing: 0.06em; white-space: nowrap;
+    }
+    .tb-badge-version { background: var(--blue-pale); border: 1px solid var(--blue-light); color: var(--blue); }
+    .tb-badge-ws      { background: var(--warm-light); border: 1px solid var(--warm); color: var(--warm); }
+
+    /* ══ SIDEBAR ══ */
+    #sidebar {
+      position: fixed; top: 56px; left: 0; bottom: 0;
+      width: 260px; background: var(--cream-dark);
+      border-right: 1px solid var(--border);
+      overflow-y: auto; padding: 20px 0 40px;
+    }
+    .nav-group-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--blue);
+      padding: 0 20px; margin: 22px 0 6px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav-group-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(to right, rgba(107,150,188,0.5), transparent);
+    }
+    .nav-group-label:first-child { margin-top: 0; }
+    .nav-btn {
+      display: block; width: 100%; padding: 8px 20px;
+      font-family: inherit; font-size: 13px; font-weight: 500;
+      color: var(--navy-mid); background: none; border: none;
+      border-left: 2px solid transparent; text-align: left; cursor: pointer;
+      transition: color 0.14s, background 0.14s, border-color 0.14s;
+    }
+    .nav-btn:hover { color: var(--navy); background: rgba(107,150,188,0.08); }
+    .nav-btn.active { color: var(--navy); background: var(--blue-pale); border-left-color: var(--blue); }
+    .nav-btn.sub { padding-left: 32px; font-size: 12px; }
+
+    /* ══ MAIN ══ */
+    #main { margin-left: 260px; padding-top: 56px; min-height: 100vh; }
+
+    .content-panel { display: none; padding: 36px 48px; max-width: 1060px; margin: 0 auto; }
+    .content-panel.active { display: block; }
+
+    /* Section label */
+    .section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--blue);
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(to right, rgba(107,150,188,0.5), transparent);
+    }
+
+    .page-title    { font-size: 24px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+    .page-subtitle { font-size: 14px; color: var(--navy-soft); margin-bottom: 28px; }
+
+    /* Callout */
+    .callout {
+      border-left: 4px solid var(--blue);
+      background: var(--blue-pale);
+      border-radius: 0 8px 8px 0;
+      border-top: 1px solid var(--blue-light);
+      border-right: 1px solid var(--blue-light);
+      border-bottom: 1px solid var(--blue-light);
+      padding: 14px 18px; margin-bottom: 24px;
+    }
+    .callout-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--blue); margin-bottom: 6px;
+    }
+    .callout p { font-size: 13px; color: var(--navy-mid); line-height: 1.75; }
+
+    /* Diagram container */
+    .diagram-card {
+      background: var(--cream); border: 1px solid var(--border);
+      border-radius: 12px; padding: 28px 20px; margin-bottom: 20px;
+    }
+    .excali-svg { display: block; width: 100%; font-family: 'Montserrat', sans-serif; }
+
+    /* Legend */
+    .legend-row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
+    .legend-item { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 500; color: var(--navy); }
+    .legend-swatch { width: 22px; height: 22px; border-radius: 5px; border: 2px solid; flex-shrink: 0; }
+
+    /* Flow steps */
+    .flow-steps { position: relative; padding-left: 32px; margin-bottom: 8px; }
+    .flow-steps::before {
+      content: ''; position: absolute; left: 6px; top: 14px; bottom: 14px;
+      width: 1px; background: var(--blue-light);
+    }
+    .flow-step { position: relative; margin-bottom: 20px; }
+    .flow-step:last-child { margin-bottom: 0; }
+    .flow-step-dot {
+      position: absolute; left: -29px; top: 3px;
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1.5px solid var(--blue); background: var(--cream);
+    }
+    .flow-step-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+    .flow-step-desc  { font-size: 13.5px; color: var(--navy-soft); line-height: 1.75; }
+
+    /* Glossary */
+    .gloss-section { margin-bottom: 32px; scroll-margin-top: 76px; }
+    .gloss-section-title {
+      font-size: 13.5px; font-weight: 700; color: var(--navy);
+      margin-bottom: 10px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .gloss-wrap {
+      background: #FAF7F3; border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 6px rgba(43,70,100,0.06);
+    }
+    .gloss-table { width: 100%; border-collapse: collapse; }
+    .gloss-table thead td {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--navy);
+      padding: 10px 18px; background: #E0D8CC;
+    }
+    .gloss-table thead { border-bottom: 2px solid rgba(43,70,100,0.25); }
+    .gloss-table td {
+      padding: 13px 18px; border-bottom: 1px solid var(--border);
+      vertical-align: top; font-size: 14px; color: var(--navy-mid); line-height: 1.65;
+    }
+    .gloss-table tr:last-child td { border-bottom: none; }
+    .gloss-table td:first-child {
+      font-family: var(--mono);
+      font-size: 12px; font-weight: 600; width: 195px; white-space: nowrap;
+      color: var(--navy);
+      background: var(--blue-pale);
+      border-right: 1px solid var(--border);
+    }
+    .gloss-table tr:hover td            { background: #f5f8fc; }
+    .gloss-table tr:hover td:first-child { background: #ccdff0; }
+
+    /* Task state badges */
+    .task-states { display: inline-flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+    .ts { font-family: var(--mono); font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 600; }
+    .ts-sub  { background: var(--blue-pale); color: var(--blue); border: 1px solid var(--blue-light); }
+    .ts-work { background: #FEF3E2; color: #A0620A; border: 1px solid #F0C070; }
+    .ts-comp { background: #E4F5E9; color: #2E7D50; border: 1px solid #90CCA0; }
+    .ts-fail { background: #FDEAEA; color: #B03030; border: 1px solid #E09090; }
+    .ts-input { background: #F3EEF8; color: #7040A0; border: 1px solid #C0A0D8; }
+    .ts-sep  { color: var(--navy-faint); }
+
+    footer {
+      margin-left: 260px; padding: 14px 48px; text-align: center;
+      font-size: 11px; color: var(--navy-soft);
+      border-top: 1px solid var(--border);
+      background: var(--cream-dark);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══ -->
+<div id="topbar">
+  <div class="tb-logo">A2A + MCP</div>
+  <div class="tb-title">Personalized Learning — Workshop Reference</div>
+  <div class="tb-badge tb-badge-ws">Workshop</div>
+  <div class="tb-badge tb-badge-version">v1.0</div>
+</div>
+
+<!-- ══ SIDEBAR ══ -->
+<nav id="sidebar">
+  <div class="nav-group-label">Glossary</div>
+  <button class="nav-btn active" onclick="showGloss('gloss-agents', this)">AI Agent Fundamentals</button>
+  <button class="nav-btn sub" onclick="showGloss('gloss-mcp', this)">MCP Protocol</button>
+  <button class="nav-btn sub" onclick="showGloss('gloss-a2a', this)">A2A Protocol</button>
+  <button class="nav-btn sub" onclick="showGloss('gloss-arch', this)">Architecture Terms</button>
+
+  <div class="nav-group-label">Diagrams</div>
+  <button class="nav-btn" onclick="showPanel('diagram', this)">◈ &nbsp;Workshop System Flow</button>
+  <button class="nav-btn" onclick="showPanel('production', this)">◈ &nbsp;Production Architecture</button>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<main id="main">
+
+  <!-- ── DIAGRAM PANEL ── -->
+  <div id="panel-diagram" class="content-panel">
+    <div class="section-label">System Architecture</div>
+    <h1 class="page-title">System Flow</h1>
+    <p class="page-subtitle">All services, ports and protocols · what you will build in this workshop</p>
+
+    <div class="callout">
+      <div class="callout-title">⚡ What you'll implement</div>
+      <p>The <strong>Assessment Agent (:8092)</strong> — a remote A2A agent that exposes skill <code>assess_level</code>. It calls MCP tools to fetch quiz questions, evaluates learner answers via LLM, and returns a structured <code>Artifact</code> back through the A2A task lifecycle.</p>
+    </div>
+
+    <div class="diagram-card" style="text-align:center;">
+      <img src="docs/diagram-workshop.png" alt="Workshop System Flow Diagram"
+           style="max-width:100%; border-radius:8px; display:inline-block;" />
+    </div>
+
+    <!-- Request flow steps -->
+    <div class="section-label">Request Lifecycle</div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-dot"></div>
+        <div class="flow-step-title">User sends a request</div>
+        <div class="flow-step-desc">CLI / pytest / Streamlit posts a message to the Orchestrator via <code>A2A JSON-RPC</code>. A new <code>context_id</code> is generated and kept for the whole session.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot"></div>
+        <div class="flow-step-title">Orchestrator scores agents</div>
+        <div class="flow-step-desc">Tokenises the message, counts keyword overlap with each agent's skill <code>tags</code>. All agents with <code>score ≥ 50%</code> of the top score are selected and called in parallel.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot"></div>
+        <div class="flow-step-title">Agent enters its agentic loop</div>
+        <div class="flow-step-desc">The selected agent receives the message + <code>context_id</code>. The LLM decides which MCP tools to call, calls them over <code>MCP HTTP</code>, and iterates until it has a complete answer.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot"></div>
+        <div class="flow-step-title">Artifact returned</div>
+        <div class="flow-step-desc">The agent wraps its result in a structured <code>Artifact</code> (<code>new_text_artifact(name, text)</code>) and emits it back as a <code>TaskArtifactUpdateEvent</code>. Task state transitions to <code>completed</code>.</div>
+      </div>
+    </div>
+  </div><!-- #panel-diagram -->
+
+
+  <!-- ── GLOSSARY PANEL (default) ── -->
+  <div id="panel-glossary" class="content-panel active">
+    <div class="section-label">Reference</div>
+    <h1 class="page-title">Glossary</h1>
+    <p class="page-subtitle">Key terms used throughout the workshop, grouped by topic</p>
+
+    <!-- 1 · AI Agent Fundamentals -->
+    <div class="gloss-section" id="gloss-agents">
+      <div class="gloss-section-title">AI Agent Fundamentals</div>
+      <div class="gloss-wrap">
+        <table class="gloss-table">
+          <thead><tr><td>Term</td><td>Definition</td></tr></thead>
+          <tr>
+            <td>LLM</td>
+            <td>Large Language Model — the AI model that powers an agent's reasoning and decision-making (e.g. GPT-4, Claude, Gemini)</td>
+          </tr>
+          <tr>
+            <td>AI Agent</td>
+            <td>Software that receives input, reasons autonomously, and takes actions (tool calls, API requests, etc.) to achieve a goal — without step-by-step human instructions</td>
+          </tr>
+          <tr>
+            <td>Tool / Tool Call</td>
+            <td>A function an agent can invoke to interact with the world — fetch data, update state, call an API. The agent decides <em>when</em> to call it and with <em>which</em> arguments</td>
+          </tr>
+          <tr>
+            <td>Agentic Loop</td>
+            <td>The cycle an agent runs repeatedly: <strong>think → decide → act → observe → repeat</strong> until the task is complete or a stopping condition is met</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2 · MCP -->
+    <div class="gloss-section" id="gloss-mcp">
+      <div class="gloss-section-title">MCP — Model Context Protocol</div>
+      <div class="gloss-wrap">
+        <table class="gloss-table">
+          <thead><tr><td>Term</td><td>Definition</td></tr></thead>
+          <tr>
+            <td>MCP</td>
+            <td>Standard open protocol for exposing callable tools to AI agents over HTTP. Any agent that speaks MCP can use any MCP Server's tools without custom integration code</td>
+          </tr>
+          <tr>
+            <td>MCP Server</td>
+            <td>Server that hosts and exposes tools via the MCP protocol. In this workshop it runs on <code>port 8004</code>, reads local JSON files, and requires no external API keys</td>
+          </tr>
+          <tr>
+            <td>MCP Tool</td>
+            <td>A specific callable function exposed by an MCP Server. Decorated with <code>@mcp.tool(tags={...})</code> in <code>fastmcp_server.py</code>. Example: <code>get_topic_summary(topic, level)</code></td>
+          </tr>
+          <tr>
+            <td>FastMCP</td>
+            <td>Python library for building MCP servers with minimal boilerplate — decorate any Python function with <code>@mcp.tool()</code> and it becomes a callable MCP tool</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3 · A2A -->
+    <div class="gloss-section" id="gloss-a2a">
+      <div class="gloss-section-title">A2A — Agent-to-Agent Protocol</div>
+      <div class="gloss-wrap">
+        <table class="gloss-table">
+          <thead><tr><td>Term</td><td>Definition</td></tr></thead>
+          <tr>
+            <td>A2A</td>
+            <td>Standard open protocol for agent-to-agent communication, using JSON-RPC over HTTP. Any A2A-compliant agent can discover and call any other without custom glue code</td>
+          </tr>
+          <tr>
+            <td>Agent Card</td>
+            <td>JSON metadata file every agent publishes at <code>/.well-known/agent-card.json</code>. Contains: name, URL, version, capabilities, and Skills. Used by the Orchestrator for discovery and routing</td>
+          </tr>
+          <tr>
+            <td>Skill</td>
+            <td>A named capability advertised in an Agent Card. Has an <code>id</code>, <code>name</code>, <code>description</code>, <code>tags</code>, and example prompts. Examples: <code>assess_level</code>, <code>explain_topic</code>, <code>build_study_plan</code></td>
+          </tr>
+          <tr>
+            <td>Tags</td>
+            <td>Keyword list attached to a Skill (e.g. <code>["quiz", "assessment", "level"]</code>). The Orchestrator matches user message words against Tags to decide which agents to invoke</td>
+          </tr>
+          <tr>
+            <td>Task</td>
+            <td>A unit of work in A2A. Every user request creates a Task with a unique <code>task_id</code>. Multiple turns in the same conversation share a <code>context_id</code></td>
+          </tr>
+          <tr>
+            <td>Task States</td>
+            <td>
+              <div class="task-states">
+                <span class="ts ts-sub">submitted</span><span class="ts-sep">→</span>
+                <span class="ts ts-work">working</span><span class="ts-sep">→</span>
+                <span class="ts ts-comp">completed</span><span class="ts-sep">/</span>
+                <span class="ts ts-fail">failed</span><span class="ts-sep">/</span>
+                <span class="ts ts-input">input_required</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>Artifact</td>
+            <td>Structured output attached to a Task by an agent. Created with <code>new_text_artifact(name, text)</code>; the caller receives it as a <code>TaskArtifactUpdateEvent</code></td>
+          </tr>
+          <tr>
+            <td>Message</td>
+            <td>A2A message object: <code>role</code> (user / agent) + <code>parts</code> (list of <code>TextPart</code>) + <code>context_id</code>. Wraps the text payload sent between agents</td>
+          </tr>
+          <tr>
+            <td>context_id</td>
+            <td>Conversation identifier generated by the client and reused across all turns in a session. The Orchestrator forwards it to remote agents so they can read conversation history</td>
+          </tr>
+          <tr>
+            <td>Streaming</td>
+            <td>Sending response chunks incrementally while processing. All agents declare <code>AgentCapabilities(streaming=True)</code> in their Agent Card</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4 · Architecture Terms -->
+    <div class="gloss-section" id="gloss-arch">
+      <div class="gloss-section-title">Project Architecture Terms</div>
+      <div class="gloss-wrap">
+        <table class="gloss-table">
+          <thead><tr><td>Term</td><td>Definition</td></tr></thead>
+          <tr>
+            <td>Orchestrator</td>
+            <td>Central agent that receives every user request, scores all registered agents by keyword overlap against their skill tags, and routes to the best-matching agent(s)</td>
+          </tr>
+          <tr>
+            <td>Remote Agent</td>
+            <td>Specialist agent (Topic Explainer, Assessment, Study Plan) that receives a delegated <code>Message</code> from the Orchestrator via A2A and handles a focused task</td>
+          </tr>
+          <tr>
+            <td>Keyword Routing</td>
+            <td>Routing algorithm: <code>score = len(user_words ∩ agent_tags)</code>. Agents whose score is ≥ 50% of the highest score are all invoked. Implemented in <code>orchestrator_agent/agent_logic.py</code></td>
+          </tr>
+          <tr>
+            <td>BaseAgentExecutor</td>
+            <td>Shared base class in <code>base_executor.py</code>. Bridges each agent's <code>stream()</code> logic to the A2A task lifecycle — reading conversation history, emitting artifacts, and updating task status</td>
+          </tr>
+          <tr>
+            <td>InMemoryTaskStore</td>
+            <td>Task storage that lives in process memory. Fast and zero-config, but resets when the server restarts. Used by every agent via <code>DefaultRequestHandler</code></td>
+          </tr>
+          <tr>
+            <td>server_factory</td>
+            <td>Helper in <code>server_factory.py</code> that bootstraps a full A2A Starlette + uvicorn server from just an Agent Card and an Executor class. Every agent's <code>__main__.py</code> calls it in one line</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- #panel-glossary -->
+
+  <!-- ── PRODUCTION ARCHITECTURE PANEL ── -->
+  <div id="panel-production" class="content-panel">
+    <div class="section-label">Production Architecture</div>
+    <h1 class="page-title">Production-Grade Multi-Agent System</h1>
+    <p class="page-subtitle">How this kind of system is designed at production scale — beyond the workshop scope</p>
+
+    <div class="callout">
+      <div class="callout-title">📌 Workshop vs Production</div>
+      <p>The workshop system is a simplified version of this architecture. In production you'd add auth, guardrails, observability, async task queues, and human-in-the-loop gates.</p>
+    </div>
+
+    <div class="diagram-card" style="text-align:center;">
+      <img src="docs/diagram-production.png" alt="Production-Grade Multi-Agent Architecture"
+           style="max-width:100%; border-radius:8px; display:inline-block;" />
+    </div>
+
+    <div class="section-label">Key Production Additions</div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-dot"></div>
+        <div class="flow-step-title">Auth &amp; API Gateway</div>
+        <div class="flow-step-desc">All incoming requests pass through an auth layer before reaching the orchestrator. Handles token validation, rate limiting, and API key management.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot"></div>
+        <div class="flow-step-title">Guardrails &amp; Compliance</div>
+        <div class="flow-step-desc">Input guardrails block prompt injection and harmful content before it reaches agents. Output guardrails filter agent responses before returning to the user.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot"></div>
+        <div class="flow-step-title">Human-in-the-Loop (HITL)</div>
+        <div class="flow-step-desc">A <strong>User Approval Gate</strong> intercepts agent outputs that exceed confidence thresholds or involve sensitive actions, requiring explicit human approval before proceeding.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot"></div>
+        <div class="flow-step-title">Async / Parallel Tasks</div>
+        <div class="flow-step-desc">The orchestrator manages a message queue and dispatches tasks asynchronously. Agents run in parallel; results are merged and streamed back incrementally.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot"></div>
+        <div class="flow-step-title">Observability</div>
+        <div class="flow-step-desc">Logs, latency metrics, and token consumption are collected per agent and per task. Enables debugging, cost tracking, and performance optimization at scale.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-dot"></div>
+        <div class="flow-step-title">External Data &amp; MCP Servers</div>
+        <div class="flow-step-desc">Agents connect to VectorDBs, SQL/NoSQL stores, and bucket/file systems for long-term memory. External MCP servers expose third-party APIs as callable tools.</div>
+      </div>
+    </div>
+  </div><!-- #panel-production -->
+
+</main>
+
+<footer>A2A + MCP Workshop · Personalized Learning · Workshop Reference v1.0</footer>
+
+<script>
+  function showPanel(id, el) {
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function showGloss(sectionId, el) {
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-glossary').classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+    setTimeout(() => {
+      const target = document.getElementById(sectionId);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 30);
+  }
+</script>
+
+</body>
+</html>
